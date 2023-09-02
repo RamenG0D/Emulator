@@ -1,26 +1,20 @@
 #include "Emulator.h"
 
+Vector2 MousePos = { 0 };
+
 int main(void) {
     Gameboy gb = { 0 };
 
     init(700, 700);
+
+    Texture background = LoadTextureFromImage(LoadImage("background.png"));
     
-    Texture a, b, c;
-    Image img = LoadImage("background.png");
-    Texture2D background = LoadTextureFromImage(img);
-    a = LoadTextureFromImage(ImageCopy(img));
-    b = LoadTextureFromImage(ImageCopy(img));
-    c = LoadTextureFromImage(ImageCopy(img));
-    
-    CreateMiniWindow(Game); WindowGamePos = (Rectangle){ 20, 60, 200, 230 };
-    CreateMiniWindow(Log); WindowLogPos = (Rectangle){ 300, 30, 300, 300 };
+    CreateMiniWindow(Game, MousePos, 20, 60, 200, 230);
+    CreateMiniWindow(Log, MousePos, 300, 30, 300, 300);
+    CreateMiniWindow(Extra, MousePos, 300, 230, 300, 300);
     int Width, Height;
 
-    Byte GameData[KiloBytes(1024)];
-    read_game("Roms/Pokemon.gb", GameData, sizeof(GameData));
-
-    for(int i = 0; i < sizeof(gb.cartridge.EPROM); ++i)
-        gb.cartridge.EPROM[i] = GameData[i];
+    ReadFileBytes("Roms/Pokemon.gb", gb.cartridge.EPROM, sizeof(gb.cartridge.EPROM));
     
     //Purpose is to allow for checking to see if the game code (asm) has been loaded into the vRam correctly
     #ifdef DEBUG
@@ -37,14 +31,18 @@ int main(void) {
 
         BeginDrawing();
             ClearBackground(BLACK); DrawTextureScaled(background, 0, 0, Width, Height);
-            if(!WindowGameExit) {
-                WindowGameExit = GuiWindowBox(WindowGamePos, "Game");
-                DrawGameScreen(WindowGamePos.x, WindowGamePos.y+24, WindowGamePos.width, WindowGamePos.height);
-                InnerWindowEvents(Game);           
+            if(!Game.WindowExit) {
+                Game.WindowExit = GuiWindowBox(Game.WindowPos, "Game");
+                DrawGameScreen(Game.WindowPos.x, Game.WindowPos.y+24, Game.WindowPos.width, Game.WindowPos.height);
+                InnerWindowEvents(Game);     
             }
-            if(!WindowLogExit) {
-                WindowLogExit = GuiWindowBox(WindowLogPos, "Log");
+            if(!Log.WindowExit) {
+                Log.WindowExit = GuiWindowBox(Log.WindowPos, "Log");
                 InnerWindowEvents(Log);
+            }
+            if(!Extra.WindowExit) {
+                Log.WindowExit = GuiWindowBox(Log.WindowPos, "Log");
+                InnerWindowEvents(Extra);
             }
             //if(!WindowMemVeiwExit) {  = GuiWindowBox(, "Mem"); }
         EndDrawing();
@@ -52,7 +50,7 @@ int main(void) {
 
     // DE - INITIALIZATION
 
-    UnLoadTextures(background, a, b, c);
+    UnLoadTextures(background);
 
     CloseWindow();
 
@@ -66,7 +64,7 @@ void DrawGameScreen(const int x, const int y, const int width, const int height)
     //
 }
 
-void read_game(const char* filepath, Byte* data, size_t size) {
+void ReadFileBytes(const char* filepath, Byte* data, size_t size) {
     if(FileExists(filepath) == true) {
         FILE* file = fopen(filepath, "rb");
         fread(data, sizeof(Byte), size, file);
@@ -74,27 +72,4 @@ void read_game(const char* filepath, Byte* data, size_t size) {
     } else {
         printf("Error: Failed to read file => { %s }\n", filepath);
     }
-}
-
-void UnLoadTextures(Texture texture, ...) {
-    va_list arg_ptr;
-    va_start(arg_ptr, texture);
-    UnloadTexture(texture);
-    do {
-        Texture t = va_arg(arg_ptr, Texture);
-        UnloadTexture(t);
-    } while(arg_ptr != NULL);
-    va_end(arg_ptr);
-}
-
-void DrawTextureScaled(Texture2D img, int x, int y, int width, int height) {
-    img.width = width; img.height = height;
-    DrawTexture(img, x, y, WHITE);
-}
-
-void init(int width, int height) {
-    InitWindow(width, height, "Test");
-
-    SetWindowState(FLAG_WINDOW_RESIZABLE);
-    SetTargetFPS(60);
 }
