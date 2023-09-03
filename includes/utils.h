@@ -22,7 +22,7 @@ void UnLoadTextures(Texture, ...);
 
 #define InnerWindowEvents(name) \
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !name.DragWindow) { \
-        if (CheckCollisionPointRec(MousePos, (Rectangle){ name.WindowPos.x, name.WindowPos.y, name.WindowPos.width, 26 })) { \
+        if (CheckCollisionPointRec(MousePos, (Rectangle){ name.WindowPos.x-12, name.WindowPos.y, name.WindowPos.width, 26 })) { \
             name.DragWindow = true; \
             name.Offset = MousePos; \
         } \

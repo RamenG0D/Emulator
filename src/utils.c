@@ -8,7 +8,7 @@ inline void init(int width, int height) {
     SetTargetFPS(60);
 }
 
-inline void UnLoadTextures(Texture texture, ...) {
+void UnLoadTextures(Texture texture, ...) {
     VariadicListTraverser(Texture, texture, {
         UnloadTexture(Variable);
     });

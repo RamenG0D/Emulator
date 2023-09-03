@@ -1,8 +1,18 @@
 #include "Emulator.h"
 
-Vector2 MousePos = { 0 };
+#define DEBUG
+
+void DrawConsoleLog(const char* text, const int x, const int y, const int width, const int height) {
+    static char* Log = { 0 };
+    Log = malloc(sizeof(Log)+sizeof(text));
+    strcat(Log, text);
+    //DrawRectangle(x, y, width, height, BLACK);
+    GuiSetStyle(TEXTBOX, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_CENTER);
+    GuiTextBox((Rectangle){ x, y, width, height }, Log, sizeof(Log), false);
+}
 
 int main(void) {
+    Vector2 MousePos = { 0 };
     Gameboy gb = { 0 };
 
     init(700, 700);
@@ -11,19 +21,9 @@ int main(void) {
     
     CreateMiniWindow(Game, MousePos, 20, 60, 200, 230);
     CreateMiniWindow(Log, MousePos, 300, 30, 300, 300);
-    CreateMiniWindow(Extra, MousePos, 300, 230, 300, 300);
     int Width, Height;
 
     ReadFileBytes("Roms/Pokemon.gb", gb.cartridge.EPROM, sizeof(gb.cartridge.EPROM));
-    
-    //Purpose is to allow for checking to see if the game code (asm) has been loaded into the vRam correctly
-    #ifdef DEBUG
-        for(int i = 0; i < sizeof(gb.cartridge.EPROM); ++i) {
-            if(i % 8 == 0) printf("\n");
-            printf("%x ", (int)gb.cartridge.EPROM[i]);
-        }
-        printf("\n");
-    #endif
     
     while (!WindowShouldClose()) {
         Width = GetRenderWidth(); Height = GetRenderHeight();
@@ -38,13 +38,19 @@ int main(void) {
             }
             if(!Log.WindowExit) {
                 Log.WindowExit = GuiWindowBox(Log.WindowPos, "Log");
+                //Purpose is to allow for checking to see if the game code (asm) has been loaded into the vRam correctly
+                #ifdef DEBUG
+                    /*for(int i = 0; i < sizeof(gb.cartridge.EPROM); ++i) {
+                        if(i % 8 == 0) DrawConsoleLog("\n", Log.WindowPos.x, Log.WindowPos.y+24, Log.WindowPos.width, Log.WindowPos.height-24);
+                        DrawConsoleLog(TextFormat("%c", gb.cartridge.EPROM[i]), Log.WindowPos.x, Log.WindowPos.y+24, Log.WindowPos.width, Log.WindowPos.height-24);
+                    }*/
+                    // DrawConsoleLog("\n", Log.WindowPos.x, Log.WindowPos.y+24, Log.WindowPos.width, Log.WindowPos.height-24);
+                    //DrawConsoleLog(, Log.WindowPos.x, Log.WindowPos.y+24, Log.WindowPos.width, Log.WindowPos.height-24);
+                    printf("%s\n", TextFormat("%x", gb.cartridge.EPROM));
+                #endif
+                //DrawConsoleLog("Hello!", Log.WindowPos.x, Log.WindowPos.y+24, Log.WindowPos.width, Log.WindowPos.height);
                 InnerWindowEvents(Log);
             }
-            if(!Extra.WindowExit) {
-                Log.WindowExit = GuiWindowBox(Log.WindowPos, "Log");
-                InnerWindowEvents(Extra);
-            }
-            //if(!WindowMemVeiwExit) {  = GuiWindowBox(, "Mem"); }
         EndDrawing();
     }
 
