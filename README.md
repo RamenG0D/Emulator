@@ -17,5 +17,7 @@ the project also uses rlImGui so shout out to them
 hopefully this might be usefull to someone else in the future.
 
 [Main GB Resource](https://github.com/gb-archive/salvage/blob/master/misc/8bit_wonderland.pdf)
+
 [Raylib](https://github.com/raysan5/raylib)
+
 [RlImGui](https://github.com/raylib-extras/rlImGui)
