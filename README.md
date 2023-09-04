@@ -6,9 +6,9 @@ The project will use Raylib but everything else will be created for the project.
 
 ## Side notes
 
-###Goal
-- Get virtual gameboy to execute code
-- Get virtual gameboy to play pokemon red
+* Goal
+   - Get virtual gameboy to execute code
+   - Get virtual gameboy to play pokemon red
 
 the project also uses rlImGui so shout out to them
 
