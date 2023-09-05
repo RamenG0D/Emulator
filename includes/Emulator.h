@@ -3,9 +3,6 @@
 #include "Types.h"
 #include "Gameboy.h"
 
-#define RAYGUI_IMPLEMENTATION
-#include "raygui.h"
-
 void ReadFileBytes(const char*, Byte*, size_t);
 
 /* A neat idea but doesnt work
