@@ -2,20 +2,12 @@
 #include <stddef.h>
 
 #include "raylib.h"
+#include "raymath.h"
 
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include "cimgui.h"
 
 #include "rlImGui.h"
-
-#ifdef IMGUI_HAS_IMSTR
-#define igBegin igBegin_Str
-#define igSliderFloat igSliderFloat_Str
-#define igCheckbox igCheckbox_Str
-#define igColorEdit3 igColorEdit3_Str
-#define igButton igButton_Str
-#define igDebugCheckVersionAndDataLayout igDebugCheckVersionAndDataLayout_Str
-#endif
 
 typedef unsigned char Byte;
 

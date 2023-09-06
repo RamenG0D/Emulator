@@ -4,7 +4,7 @@
 void init(int width, int height) {
     InitWindow(width, height, "Test");
 
-    SetWindowState(FLAG_WINDOW_RESIZABLE);
+    SetWindowState(FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
     SetTargetFPS(60);
 }
 
