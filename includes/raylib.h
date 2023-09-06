@@ -93,14 +93,17 @@
         #if defined(__TINYC__)
             #define __declspec(x) __attribute__((x))
         #endif
-        #define RLAPI __declspec(dllexport)     // We are building the library as a Win32 shared library (.dll)
+        // We are building the library as a Win32 shared library (.dll)
+        #define RLAPI __declspec(dllexport)     
     #elif defined(USE_LIBTYPE_SHARED)
-        #define RLAPI __declspec(dllimport)     // We are using the library as a Win32 shared library (.dll)
+        // We are using the library as a Win32 shared library (.dll)
+        #define RLAPI __declspec(dllimport)     
     #endif
 #endif
 
 #ifndef RLAPI
-    #define RLAPI       // Functions defined as 'extern' by default (implicit specifiers)
+    // Functions defined as 'extern' by default (implicit specifiers)
+    #define RLAPI
 #endif
 
 //----------------------------------------------------------------------------------
