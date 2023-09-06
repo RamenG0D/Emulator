@@ -2,12 +2,13 @@
 #include <stddef.h>
 
 #include "raylib.h"
-#include "raymath.h"
 
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include "cimgui.h"
 
 #include "rlImGui.h"
+
+#include "rlImGuiColors.h"
 
 typedef unsigned char Byte;
 
@@ -20,12 +21,12 @@ typedef unsigned char Byte;
 #define Bit(name) \
 struct { \
     Byte bit : 1; \
-} name \
+} name
 
 typedef enum {
-    ROM,
-    RAM,
-} BankState;
+    MBC1,
+    MBC2
+} MbcState;
 
 /*typedef enum {
     // Signals
