@@ -18,7 +18,7 @@ void ReadFileBytes(const char*, Byte*, size_t);
     Texture ScreenTexture;
 
     // Clears the Image / Drawable screen to the specified color
-    void ClearGameBoyScreen(Color color) {
+    inline void ClearGameBoyScreen(Color color) {
         UnloadImage(ScreenImage);
         ScreenImage = GenImageColor(GAMEBOY_WIDTH, GAMEBOY_HEIGHT, color);
     }

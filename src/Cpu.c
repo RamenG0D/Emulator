@@ -3,7 +3,7 @@
 
 #include <assert.h>
 
-inline void print_binary(const char* format, Byte num) {
+void print_binary(const char* format, Byte num) {
     while (num) {
         if (num & 1) printf("1");
         else printf("0");

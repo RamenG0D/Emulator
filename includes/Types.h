@@ -1,11 +1,15 @@
 #include <stdbool.h>
 #include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "raylib.h"
 
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
+#define CIMGUI_NO_EXPORT
 #include "cimgui.h"
 
+#define NO_FONT_AWESOME
 #include "rlImGui.h"
 
 #include "rlImGuiColors.h"

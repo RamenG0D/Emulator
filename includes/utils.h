@@ -18,47 +18,50 @@
     }; \
     va_end(ptr);
 
+// Purpose is to allow for checking to see if the game code (asm) has been loaded into the vRam correctly
+#define Log(loglevel, msg, ...) \
+    char* tmp = Debugfmt(loglevel, msg); \
+    igDebugLog(tmp, __VA_ARGS__); \
+    free(tmp);
+
+typedef enum {
+    /*just prints your message to the log*/
+    Normal,
+    /*Not a "Fatal" error, just an error such "as player shouldnt be back here?" and "Item should be un-obtainable how?"*/
+    Error,
+    /*Will exit the program and print message out to log*/
+    Panic
+} LogLevel;
+
+char* Debugfmt(LogLevel LogLevel, const char* msg);
 void init(int width, int height);
 void DrawTextureScaled(Texture2D img, int x, int y, int width, int height);
 
-#define WindowEvents(name) \
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) { \
-        Vector2 mPos = GetMousePosition(); \
-        if (CheckCollisionPointRec(mPos, (Rectangle){ name.windowRect.x, name.windowRect.y, name.windowRect.width, 18 })) { \
-            name.isDragging = true; \
-        } else if (CheckCollisionPointRec( mPos, (Rectangle){ (name.windowRect.x + name.windowRect.width)-4, name.windowRect.y, 20, 18 })) { \
-            name.open = false; \
-        } \
-    } \
-    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) { \
-        name.isDragging = false; \
-    } \
-    if (name.isDragging) { \
-        name.windowRect.x += GetMouseDelta().x; \
-        name.windowRect.y += GetMouseDelta().y; \
+// Needed Due to issues with combining cimgui and rlImgui
+inline void rlImGuiFixed(ImGuiIO* io, void(*func)(void)) {
+    io->MousePos.x = (float)GetMouseX();
+    io->MousePos.y = (float)GetMouseY();
+    io->MouseDown[0] = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
+    io->MouseDown[1] = IsMouseButtonDown(MOUSE_RIGHT_BUTTON);
+    io->MouseDown[2] = IsMouseButtonDown(MOUSE_MIDDLE_BUTTON);
+    {
+        Vector2 mouseWheel = GetMouseWheelMoveV();io->MouseWheel += mouseWheel.y;io->MouseWheelH += mouseWheel.x;
+    }
+    if (IsWindowFullscreen()) {
+        int monitor = GetCurrentMonitor(); io->DisplaySize.x = (float)(GetMonitorWidth(monitor)); io->DisplaySize.y = (float)(GetMonitorHeight(monitor));
+    } else {
+        io->DisplaySize.x = (float)(GetScreenWidth()); io->DisplaySize.y = (float)(GetScreenHeight());
+    }
+    int width = (int)(io->DisplaySize.x), height = (int)(io->DisplaySize.y);
+    if (width > 0 && height > 0) {
+        io->DisplayFramebufferScale = (ImVec2){width / io->DisplaySize.x, height / io->DisplaySize.y};
+    } else {
+        io->DisplayFramebufferScale = (ImVec2){1.0f, 1.0f};
     }
 
-#define CreateWindow(name, ix, iy, args, Block) \
-    typedef struct { \
-        Rectangle windowRect; \
-        bool isDragging; \
-        bool open; \
-    } name##Window; \
-    name##Window name = \
-    { \
-        (Rectangle){ ix, iy, GAMEBOY_WIDTH, GAMEBOY_HEIGHT }, \
-        false, \
-        true \
-    }; \
-    void name##WindowEvents args { \
-        if(name.open) { \
-            igSetNextWindowContentSize((ImVec2){ name.windowRect.width, name.windowRect.height }); \
-        } else { \
-            igSetNextWindowContentSize((ImVec2){ name.windowRect.width, name.windowRect.height-GAMEBOY_HEIGHT }); \
-        } \
-        igSetNextWindowPos( (ImVec2){ name.windowRect.x, name.windowRect.y }, ImGuiCond_Always, (ImVec2){ 0 } ); \
-        igBegin(#name, &name.open, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings); \
-            WindowEvents(name); \
-            Block; \
-        igEnd(); \
+    for(int i = 0; i < 20; ++i) {
+        rlImGuiBeginDelta(1.0f / GetFrameTime());
+        func();
+        rlImGuiEnd();
     }
+}

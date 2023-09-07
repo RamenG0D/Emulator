@@ -5,21 +5,20 @@
 
 #define DEBUG
 
-// Purpose is to allow for checking to see if the game code (asm) has been loaded into the vRam correctly
-#define Log(msg, ...)             \
-    igDebugLog("[LOG]");          \
-    igDebugLog(msg, __VA_ARGS__); \
-    igDebugLog("\n");
-
 inline void DrawScreen(Image *image)
 {
     //
 }
 
-CreateWindow(GameBoy, 200, 50, (Texture* img), { igImage((ImTextureID)img, (ImVec2){ GAMEBOY_WIDTH, GAMEBOY_HEIGHT }, (ImVec2){ 0 }, (ImVec2){ 0 }, (ImVec4){ 255 }, (ImVec4){ 0 }); });
-CreateWindow(Log, 400, 400, (void), {});
+// Name is the window name, size is a Vector2(struct with float x, y) or ImVec2( (*) cast Occurs within here beware)
+#define CreateWindow(name, size, args, Block) \
+    void Render args { \
+        igSetNextWindowContentSize(*((ImVec2*)size)); \
+        igBegin(#name, NULL, ImGuiWindowFlags_NoDecoration); \
+        Block; \
+    }
 
-void BootGameBoy(Gameboy* gb, const char* GameFile) {
+inline void BootGameBoy(Gameboy* gb, const char* GameFile) {
     *gb->cpu.pc = 0x100;
     *gb->cpu.AF.reg = 0x01B0;
     *gb->cpu.BC.reg = 0x0013;
@@ -59,8 +58,12 @@ Byte Fetch(Cpu* cpu, Bus* bus) {
 GenUnloader(Texture);
 GenUnloader(Image);
 
+void windowing(void) {
+    igShowDebugLogWindow(NULL);
+}
+
 int main(void) {
-    init(700, 700);
+    init(700, 700); ImGuiIO* io = igGetIO();
 
     Texture background = LoadTextureFromImage(LoadImage("background.png"));
     int Width; // The Raylib Window Width
@@ -75,20 +78,7 @@ int main(void) {
         BeginDrawing();
         {
             ClearBackground(BLACK); DrawTextureScaled(background, 0, 0, Width, Height);
-
-            BeginDraw();
-            {
-                ImageDrawLine(&ScreenImage, 0, 0, 100, 100, RAYWHITE);
-            }
-            EndDraw();
-
-            rlImGuiBegin();
-            {
-                GameBoyWindowEvents(&ScreenTexture);
-                LogWindowEvents();
-                //igShowDebugLogWindow(NULL);
-            }
-            rlImGuiEnd();
+            rlImGuiFixed(io, windowing);
         }
         EndDrawing();
     }
