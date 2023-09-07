@@ -12,7 +12,7 @@ typedef struct PPU {
     Byte Test : 1;
 } Ppu;
 
-typedef Byte Word[2]; // 16 bits / (Byte * 2)
+typedef int16_t Word; // 16 bits / (Byte * 2)
 
 // The Cpu Registers that the gameboy uses to store and load small amounts of data very quickly
 typedef union {

@@ -11,12 +11,12 @@ inline void DrawScreen(Image *image)
 }
 
 inline void BootGameBoy(Gameboy* gb, const char* GameFile) {
-    *gb->cpu.pc = 0x100;
-    *gb->cpu.AF.reg = 0x01B0;
-    *gb->cpu.BC.reg = 0x0013;
-    *gb->cpu.DE.reg = 0x00D8;
-    *gb->cpu.HL.reg = 0x014D;
-    *gb->cpu.sp.reg = 0xFFFE;
+    gb->cpu.pc = 0x100;
+    gb->cpu.AF.reg = 0x01B0;
+    gb->cpu.BC.reg = 0x0013;
+    gb->cpu.DE.reg = 0x00D8;
+    gb->cpu.HL.reg = 0x014D;
+    gb->cpu.sp.reg = 0xFFFE;
     gb->Memory.ROM[0xFF10] = (Byte) 0x80;
     gb->Memory.ROM[0xFF11] = (Byte) 0xBF;
     gb->Memory.ROM[0xFF12] = (Byte) 0xF3;
@@ -42,8 +42,8 @@ inline void BootGameBoy(Gameboy* gb, const char* GameFile) {
 }
 
 Byte Fetch(Cpu* cpu, Bus* bus) {
-    Byte data = bus->cartridge.EPROM[*cpu->pc];
-    *cpu->pc += 0x1;
+    Byte data = bus->cartridge.EPROM[cpu->pc];
+    cpu->pc += 0x1;
     return data;
 }
 

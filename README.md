@@ -4,8 +4,6 @@
 This projects goal is to emulate the oh so popular gameboy :D
 The project will use Raylib but everything else will be created for the project.
 
-## Side notes
-
 - Goal
    - Get virtual gameboy to execute code
       - Emulate the Gameboy `cpu`
@@ -18,6 +16,8 @@ The project will use Raylib but everything else will be created for the project.
    - Get virtual gameboy to play `pokemon red`
       - ~~Read Game Rom into memory~~
       - Figure out next step?
+
+## Side notes
 
 the project also uses rlImGui so shout out to them
 
