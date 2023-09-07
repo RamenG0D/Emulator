@@ -22,7 +22,7 @@ inline void DetermineBankState(Bus* bus) {
     }
 }
 
-typedef struct Gameboy {
+typedef struct GameBoy {
     Cpu cpu; Bus bus;
     struct {
         Byte ROM[KiloBytes(16)];
@@ -32,6 +32,10 @@ typedef struct Gameboy {
         Byte RAM[KiloBytes(8)];
         Byte IO[KiloBytes(8)];
     } Memory;
-} Gameboy;
+} GameBoy;
 
 Byte Fetch(Cpu* cpu, Bus* bus); // will fetch the next instruction from memory and increase the cpu tick by one
+
+void WriteMem(GameBoy* gb, Byte addr, Byte val);
+
+Byte ReadMem(GameBoy* gb, Byte addr);

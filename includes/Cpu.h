@@ -36,4 +36,6 @@ typedef struct Cpu {
     Byte C : 1; // Carry Flag
 } Cpu;
 
-// void Cycle(Cpu*); // Should just increase the tick / (cpu tick), by one 
+typedef enum {
+    Load = 0x41,
+} OpCode;

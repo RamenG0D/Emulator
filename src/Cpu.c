@@ -13,16 +13,8 @@ void print_binary(const char* format, Byte num) {
 
 void execute_opcode(Byte opcode) {
   switch (opcode) {
-    case 0x00:{
-        // NOP
-        break;
-    }
-    case 0x01:{
-        // LD BC,nn
-        break;
-    }
-    case 0xFF:{
-        // RST n
+    case Load:{
+        //
         break;
     }
     default:{

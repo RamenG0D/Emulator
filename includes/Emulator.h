@@ -6,11 +6,12 @@
 #include "Types.h"
 #include "Gameboy.h"
 
-void ReadFileBytes(const char*, Byte*, size_t);
+void ReadFileBytes(const char *filepath, Byte *data, size_t size);
+void BootGameBoy(GameBoy* gb, const char* GameFile);
 
 // thinking of using global state now to ensure i have the Gameboy ill just init it values later
 #ifndef CUSTOM_IMPLEMENTATION
-    Gameboy gb = { 0 };
+    GameBoy gb = { 0 };
 
     // The GameBoys screen which is an image well draw into an imgui window after finishing the frame
     Image ScreenImage;
