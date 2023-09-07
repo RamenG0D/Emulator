@@ -6,15 +6,26 @@ The project will use Raylib but everything else will be created for the project.
 
 ## Side notes
 
-* Goal
+- Goal
    - Get virtual gameboy to execute code
-   - Get virtual gameboy to play pokemon red
+      - Emulate the Gameboy `cpu`
+         - Handle `OpCodes`
+      - Read code from Memory
+         - Figure out next step?
+   - Draw the Screen
+      - Emulate the Gameboy `ppu` (Picture Proccessing Unit)
+         - Figure out next step?
+   - Get virtual gameboy to play `pokemon red`
+      - ~~Read Game Rom into memory~~
+      - Figure out next step?
 
 the project also uses rlImGui so shout out to them
 
 ## Resources
 
 hopefully this might be usefull to someone else in the future.
+
+P.S. Probably me...
 
 [Main GB Resource](https://github.com/gb-archive/salvage/blob/master/misc/8bit_wonderland.pdf)
 

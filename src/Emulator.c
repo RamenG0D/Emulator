@@ -10,14 +10,6 @@ inline void DrawScreen(Image *image)
     //
 }
 
-// Name is the window name, size is a Vector2(struct with float x, y) or ImVec2( (*) cast Occurs within here beware)
-#define CreateWindow(name, size, args, Block) \
-    void Render args { \
-        igSetNextWindowContentSize(*((ImVec2*)size)); \
-        igBegin(#name, NULL, ImGuiWindowFlags_NoDecoration); \
-        Block; \
-    }
-
 inline void BootGameBoy(Gameboy* gb, const char* GameFile) {
     *gb->cpu.pc = 0x100;
     *gb->cpu.AF.reg = 0x01B0;
@@ -58,12 +50,21 @@ Byte Fetch(Cpu* cpu, Bus* bus) {
 GenUnloader(Texture);
 GenUnloader(Image);
 
+CreateWindow(GameBoy, (void), {
+    igSetNextWindowSize((ImVec2){ GAMEBOY_WIDTH, GAMEBOY_HEIGHT }, ImGuiCond_Always);
+}, {
+    // Other stuff
+    igGetCurrentWindow()->Pos = ((ImVec2){ 70.0f, 135.0f });
+});
+
 void windowing(void) {
-    igShowDebugLogWindow(NULL);
+    igShowDebugLogWindow(NULL); // Debug Window
+    GameBoy.render();
 }
 
 int main(void) {
     init(700, 700); ImGuiIO* io = igGetIO();
+    io->ConfigWindowsMoveFromTitleBarOnly = true;
 
     Texture background = LoadTextureFromImage(LoadImage("background.png"));
     int Width; // The Raylib Window Width

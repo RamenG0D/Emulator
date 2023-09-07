@@ -18,6 +18,20 @@
     }; \
     va_end(ptr);
 
+// Name is the window name, size is a Vector2(struct with float x, y) or ImVec2( (*) cast Occurs within here beware)
+#define CreateWindow(name, args, Block, ...) \
+    typedef void(*name##RenderFunc)args; \
+    void Render args { \
+        Block; \
+        igBegin(#name, NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration); \
+        __VA_ARGS__ \
+        igEnd(); \
+    } \
+    typedef struct { \
+        name##RenderFunc render; \
+    } name##Window; \
+    name##Window name = { Render };
+
 // Purpose is to allow for checking to see if the game code (asm) has been loaded into the vRam correctly
 #define Log(loglevel, msg, ...) \
     char* tmp = Debugfmt(loglevel, msg); \
