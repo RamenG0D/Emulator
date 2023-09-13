@@ -1,42 +1,59 @@
+#define VariadicListTraverser(Type, FirstVarName, Block) \
+    va_list ptr; \
+    for(Type Variable = FirstVarName; !ptr; Variable = va_arg(ptr, Type)) { \
+        Block; \
+    }; \
+    va_end(ptr);
 
 #define GenUnloader(type) \
-    inline void UnLoad##type##s(type val, ...) { \
-        VariadicListTraverser(type, val, { \
+    void UnLoad##type##s(type val, ...) { \
+        va_list ptr; \
+        for(type Variable = val; !(ptr); Variable = va_arg(ptr, type)) { \
             Unload##type(Variable); \
-        }); \
+        }; \
+        va_end(ptr); \
     }
 
 #define AutoUnloader(type, ...) \
     UnLoad##type##s(__VA_ARGS__);
 
-#define ArrayLen(type) (sizeof(type*)/sizeof(type))
-
-#define VariadicListTraverser(Type, FirstVarName, Block) \
-    va_list ptr; \
-    for(Type Variable = FirstVarName; ptr != NULL; Variable = va_arg(ptr, Type)) { \
-        Block; \
-    }; \
-    va_end(ptr);
+typedef struct InnerWindow {
+    void(*begin_render)(float, float);
+    void(*end_render)(void);
+    ImGuiWindowFlags flags;
+    struct InnerWindow* self;
+    bool open;
+} InnerWindow;
 
 // Name is the window name, size is a Vector2(struct with float x, y) or ImVec2( (*) cast Occurs within here beware)
-#define CreateWindow(name, args, Block, ...) \
-    typedef void(*name##RenderFunc)args; \
-    void Render args { \
-        Block; \
-        igBegin(#name, NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration); \
-        __VA_ARGS__ \
-        igEnd(); \
+#define CreateWindow(wname, wflags) \
+    InnerWindow* Get##wname(void); \
+    void wname##_begin_render(float width, float height) { \
+        igSetNextWindowSize((ImVec2){ width, height }, ImGuiCond_Always); \
+        InnerWindow* w = Get##wname(); \
+        igBegin(#wname, &w->open, w->flags); \
     } \
-    typedef struct { \
-        name##RenderFunc render; \
-    } name##Window; \
-    name##Window name = { Render };
+    InnerWindow* Get##wname(void) { \
+        static InnerWindow window; \
+        if(!window.self) { \
+            window.begin_render = wname##_begin_render; \
+            window.end_render = igEnd; \
+            window.flags = wflags; \
+            window.open = true; \
+            window.self = &window; \
+        } \
+        return window.self; \
+    }
 
-// Purpose is to allow for checking to see if the game code (asm) has been loaded into the vRam correctly
-#define Log(loglevel, msg, ...) \
-    char* tmp = Debugfmt(loglevel, msg); \
-    igDebugLog(tmp, __VA_ARGS__); \
-    free(tmp);
+#ifdef DEBUG
+    // Purpose is to allow for checking to see if the game code (asm) has been loaded into the vRam correctly
+    #define Log(loglevel, msg, ...) \
+        igDebugLog(Debugfmt(loglevel, msg), __VA_ARGS__);
+#else
+    #define Log(...)
+#endif
+
+#define LOOP_NUM 1
 
 typedef enum {
     /*just prints your message to the log*/
@@ -47,35 +64,13 @@ typedef enum {
     Panic
 } LogLevel;
 
-char* Debugfmt(LogLevel LogLevel, const char* msg);
-void init(int width, int height);
-void DrawTextureScaled(Texture2D img, int x, int y, int width, int height);
-
-// Needed Due to issues with combining cimgui and rlImgui
-inline void rlImGuiFixed(ImGuiIO* io, void(*func)(void)) {
-    io->MousePos.x = (float)GetMouseX();
-    io->MousePos.y = (float)GetMouseY();
-    io->MouseDown[0] = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
-    io->MouseDown[1] = IsMouseButtonDown(MOUSE_RIGHT_BUTTON);
-    io->MouseDown[2] = IsMouseButtonDown(MOUSE_MIDDLE_BUTTON);
-    {
-        Vector2 mouseWheel = GetMouseWheelMoveV();io->MouseWheel += mouseWheel.y;io->MouseWheelH += mouseWheel.x;
-    }
-    if (IsWindowFullscreen()) {
-        int monitor = GetCurrentMonitor(); io->DisplaySize.x = (float)(GetMonitorWidth(monitor)); io->DisplaySize.y = (float)(GetMonitorHeight(monitor));
-    } else {
-        io->DisplaySize.x = (float)(GetScreenWidth()); io->DisplaySize.y = (float)(GetScreenHeight());
-    }
-    int width = (int)(io->DisplaySize.x), height = (int)(io->DisplaySize.y);
-    if (width > 0 && height > 0) {
-        io->DisplayFramebufferScale = (ImVec2){width / io->DisplaySize.x, height / io->DisplaySize.y};
-    } else {
-        io->DisplayFramebufferScale = (ImVec2){1.0f, 1.0f};
-    }
-
-    for(int i = 0; i < 20; ++i) {
-        rlImGuiBeginDelta(1.0f / GetFrameTime());
-        func();
-        rlImGuiEnd();
+static inline void print_binary(Byte num) {
+    while (num) {
+        if (num & 1) printf("1");
+        else printf("0");
+        num >>= 1;
     }
 }
+
+char* Debugfmt(LogLevel LogLevel, const char* msg);
+void DrawTextureScaled(Texture2D img, int x, int y, int width, int height);

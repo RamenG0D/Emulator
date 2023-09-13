@@ -1,103 +1,98 @@
 #include "Emulator.h"
-#include <assert.h>
+#include "rlgl.h"
 
 #define GAME_ROM "Roms/Pokemon.gb"
 
-#define DEBUG
+#include "ImGuiRaylib.h"
 
-inline void DrawScreen(Image *image)
-{
+inline void DrawScreen(Image* image) {
     //
 }
 
 GenUnloader(Texture);
-GenUnloader(Image);
+// GenUnloader(Image);
 
-CreateWindow(game_boy, (void), {
-    igSetNextWindowSize((ImVec2){ GAMEBOY_WIDTH, GAMEBOY_HEIGHT }, ImGuiCond_Always);
-}, {
-    // Other stuff
-    igGetCurrentWindow()->Pos = ((ImVec2){ 70.0f, 135.0f });
-});
+CreateWindow(GameBoyWindow, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+InnerWindow* game_boy;
 
 void windowing(void) {
+    if(igBeginMainMenuBar()) {
+        if(igBeginMenu("Windows", true)) {
+            if(igMenuItem_BoolPtr("GameBoy", NULL, NULL, true)) {
+                game_boy->open = true;
+            }
+            if(igMenuItem_BoolPtr("Exit", NULL, NULL, true)) {
+                exit(0);
+            }
+            igEndMenu();
+        }
+        igEndMainMenuBar();
+    }
+
     igShowDebugLogWindow(NULL); // Debug Window
-    game_boy.render();
+
+    // GAMEBOY window
+    if(game_boy->open) {
+        game_boy->begin_render(GAMEBOY_WIDTH, GAMEBOY_HEIGHT);
+            // window stuff
+        game_boy->end_render();
+    }
 }
 
+
 int main(void) {
-    init(700, 700); ImGuiIO* io = igGetIO();
-    io->ConfigWindowsMoveFromTitleBarOnly = true;
+    SetWindowState(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
+
+    InitWindow(700, 700, "GameBoy Emulator");
+
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
+    SetTargetFPS(60);
+
+    ImGuiInit(true);
+
+    igGetIO()->ConfigWindowsMoveFromTitleBarOnly = true;
+    game_boy = GetGameBoyWindow();
 
     Texture background = LoadTextureFromImage(LoadImage("background.png"));
-    int Width; // The Raylib Window Width
-    int Height; // The Raylib Window Height
+    int Width, Height;
 
-    BootGameBoy(&gb, GAME_ROM); // Setting the default Boot values, and loading the game into memory
-
-    while (!WindowShouldClose())
-    {
+    while(!WindowShouldClose()) {
         Width = GetRenderWidth(); Height = GetRenderHeight();
 
         BeginDrawing();
         {
-            ClearBackground(BLACK); DrawTextureScaled(background, 0, 0, Width, Height);
-            rlImGuiFixed(io, windowing);
+            ClearBackground(BLACK); 
+            DrawTextureScaled(background, 0, 0, Width, Height);
+
+            printf("HELP\n");
+            ImGuiBegin();
+                windowing();
+            ImGuiEnd();
+            printf("STUCK\n");
         }
         EndDrawing();
     }
 
     // DE - INITIALIZATION
 
-    AutoUnloader(Image, ScreenImage);
+    //AutoUnloader(Image, ScreenImage);
 
-    AutoUnloader(Texture, background, ScreenTexture);
+    AutoUnloader(Texture, background);//, ScreenTexture);
 
-    rlImGuiShutdown();
+    ImGuiShutdown();
 
     CloseWindow();
 
     return 0;
 }
 
-// Reads the Game Into the Gameboys Cartridge Memory
-inline void ReadFileBytes(const char *filepath, Byte *data, size_t size) {
+// Reads the Game Into the Gameboys Cartridge Mem
+inline void ReadFileBytes(const char *filepath, const Byte *data, size_t size) {
     if (FileExists(filepath) == true) {
         FILE *file = fopen(filepath, "rb");
-        fread(data, sizeof(Byte), size, file);
+        fread((Byte*)data, sizeof(Byte), size, file);
         fclose(file);
     } else {
         printf("Error: Failed to read file => { %s }\n", filepath);
     }
-}
-
-inline void BootGameBoy(GameBoy* gb, const char* GameFile) {
-    gb->cpu.pc = 0x100;
-    gb->cpu.AF.reg = 0x01B0;
-    gb->cpu.BC.reg = 0x0013;
-    gb->cpu.DE.reg = 0x00D8;
-    gb->cpu.HL.reg = 0x014D;
-    gb->cpu.sp.reg = 0xFFFE;
-    gb->Memory.ROM[0xFF10] = (Byte) 0x80;
-    gb->Memory.ROM[0xFF11] = (Byte) 0xBF;
-    gb->Memory.ROM[0xFF12] = (Byte) 0xF3;
-    gb->Memory.ROM[0xFF14] = (Byte) 0xBF;
-    gb->Memory.ROM[0xFF16] = (Byte) 0x3F;
-    gb->Memory.ROM[0xFF19] = (Byte) 0xBF;
-    gb->Memory.ROM[0xFF1A] = (Byte) 0x7F;
-    gb->Memory.ROM[0xFF1B] = (Byte) 0xFF;
-    gb->Memory.ROM[0xFF1C] = (Byte) 0x9F;
-    gb->Memory.ROM[0xFF1E] = (Byte) 0xBF;
-    gb->Memory.ROM[0xFF20] = (Byte) 0xFF;
-    gb->Memory.ROM[0xFF23] = (Byte) 0xBF;
-    gb->Memory.ROM[0xFF24] = (Byte) 0x77;
-    gb->Memory.ROM[0xFF25] = (Byte) 0xF3;
-    gb->Memory.ROM[0xFF26] = (Byte) 0xF1;
-    gb->Memory.ROM[0xFF40] = (Byte) 0x91;
-    gb->Memory.ROM[0xFF47] = (Byte) 0xFC;
-    gb->Memory.ROM[0xFF48] = (Byte) 0xFF;
-    gb->Memory.ROM[0xFF49] = (Byte) 0xFF;
-
-    // TODO use program args or smth more dynamic to add the ability to load different roms
-    ReadFileBytes(GameFile, gb->bus.cartridge.EPROM, sizeof(gb->bus.cartridge.EPROM));
 }
