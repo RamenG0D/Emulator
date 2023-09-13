@@ -1,3 +1,12 @@
 @echo off
 
-g++ -o Emulator ./src/*.c -I./includes -L./libs -lcimgui -lraylib -lrlImGui -lopengl32 -lgdi32 -lwinmm -mwindows
+set Flags=-O2 -mwindows 
+set LibDir=-L./libs
+set Libs=-lraylib -lgdi32 -lwinmm -lcimgui -lstdc++
+set Includes=-I./includes/Raylib -I./includes
+set COMILER=gcc
+
+
+%COMILER% -o Emulator ./src/*.c %Flags% %Includes% %LibDir% %Libs%
+
+

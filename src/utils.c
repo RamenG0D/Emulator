@@ -1,23 +1,12 @@
 #include "Types.h"
 #include "utils.h"
 
-void init(int width, int height) {
-    SetWindowState(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
-
-    InitWindow(width, height, "Test");
-
-    SetWindowState(FLAG_WINDOW_RESIZABLE);
-    SetTargetFPS(60);
-
-    rlImGuiSetup(true);
-}
-
 void DrawTextureScaled(Texture2D img, int x, int y, int width, int height) {
     img.width = width; img.height = height;
     DrawTexture(img, x, y, WHITE);
 }
 
-inline void prepend(char* s, const char* t)
+void prepend(char* s, const char* t)
 {
     size_t len = strlen(t);
     memmove(s + len, s, strlen(s) + 1);
@@ -29,14 +18,14 @@ char* Debugfmt(LogLevel LogLevel, const char* msg) {
     switch (LogLevel) {
         case 0: log = "[LOG] "; break;
         case 1: log = "[ERROR] "; break;
-        case 2: log = "[ ! PAINK ! ] "; panik = true; break;
+        case 2: log = ""; panik = true; break;
     }
     char* result = (char*)malloc(sizeof(log)+sizeof(msg));
     result = strcpy(result, msg);
     prepend(result, log); strcat(result, "\n");
     if(panik) {
         // PAINK!
-        printf("PANIKED ON { %s }\n", result);
+        printf("Panic on => %s\n", result);
         exit(1);
     }
     return result;
