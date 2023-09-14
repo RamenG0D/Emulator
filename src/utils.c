@@ -1,7 +1,7 @@
 #include "Types.h"
 #include "utils.h"
 
-void DrawTextureScaled(Texture2D img, int x, int y, int width, int height) {
+inline void DrawTextureScaled(Texture2D img, int x, int y, int width, int height) {
     img.width = width; img.height = height;
     DrawTexture(img, x, y, WHITE);
 }

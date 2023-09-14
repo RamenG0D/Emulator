@@ -6,7 +6,7 @@
 #define GAMEBOY_WIDTH 160
 #define GAMEBOY_HEIGHT 144
 
-void ReadFileBytes(const char* filepath, const Byte* data, size_t size);
+void ReadFileBytes(const char *filepath, Byte *data, size_t size);
 
 // The GameBoys screen which is an image well draw into an imgui window after finishing the frame
 // Image ScreenImage;
