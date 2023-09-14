@@ -7,7 +7,7 @@
 
 #define GenUnloader(type) \
     void UnLoad##type##s(type val, ...) { \
-        va_list ptr; \
+        va_list ptr = NULL; \
         for(type Variable = val; !(ptr); Variable = va_arg(ptr, type)) { \
             Unload##type(Variable); \
         }; \
@@ -18,26 +18,46 @@
     UnLoad##type##s(__VA_ARGS__);
 
 typedef struct InnerWindow {
-    void(*begin_render)(float, float);
-    void(*end_render)(void);
+    void(*BeginRender)(void);
+    void(*EndRender)(void);
+    RenderTexture2D screen;
     ImGuiWindowFlags flags;
     struct InnerWindow* self;
     bool open;
 } InnerWindow;
 
 // Name is the window name, size is a Vector2(struct with float x, y) or ImVec2( (*) cast Occurs within here beware)
-#define CreateWindow(wname, wflags) \
+// BRUH this is pretty much a class... you can evevn call a method from the object...
+#define CreateWindow(wname, width, height, wflags) \
     InnerWindow* Get##wname(void); \
-    void wname##_begin_render(float width, float height) { \
-        igSetNextWindowSize((ImVec2){ width, height }, ImGuiCond_Always); \
-        InnerWindow* w = Get##wname(); \
-        igBegin(#wname, &w->open, w->flags); \
+    void wname##_begin_render(void) { \
+        InnerWindow* window = Get##wname(); \
+        igBegin(#wname, &window->open, window->flags); \
     } \
     InnerWindow* Get##wname(void) { \
         static InnerWindow window; \
         if(!window.self) { \
-            window.begin_render = wname##_begin_render; \
-            window.end_render = igEnd; \
+            window.BeginRender = wname##_begin_render; \
+            window.EndRender = igEnd; \
+            window.flags = wflags; \
+            window.screen = LoadRenderTexture(width, height); \
+            window.open = true; \
+            window.self = &window; \
+        } \
+        return window.self; \
+    }
+
+#define CreateWindowSlim(wname, width, height, wflags) \
+    InnerWindow* Get##wname(void); \
+    void wname##_begin_render(void) { \
+        InnerWindow* window = Get##wname(); \
+        igBegin(#wname, &window->open, window->flags); \
+    } \
+    InnerWindow* Get##wname(void) { \
+        static InnerWindow window; \
+        if(!window.self) { \
+            window.BeginRender = wname##_begin_render; \
+            window.EndRender = igEnd; \
             window.flags = wflags; \
             window.open = true; \
             window.self = &window; \
@@ -45,13 +65,9 @@ typedef struct InnerWindow {
         return window.self; \
     }
 
-#ifdef DEBUG
-    // Purpose is to allow for checking to see if the game code (asm) has been loaded into the vRam correctly
-    #define Log(loglevel, msg, ...) \
-        igDebugLog(Debugfmt(loglevel, msg), __VA_ARGS__);
-#else
-    #define Log(...)
-#endif
+// Purpose is to allow for checking to see if the game code (asm) has been loaded into the vRam correctly
+#define Log(loglevel, msg, ...) \
+    igDebugLog(Debugfmt(loglevel, TextFormat(msg, __VA_ARGS__)));
 
 #define LOOP_NUM 1
 
