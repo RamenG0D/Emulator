@@ -6,8 +6,7 @@ inline void DrawTextureScaled(Texture2D img, int x, int y, int width, int height
     DrawTexture(img, x, y, WHITE);
 }
 
-void prepend(char* s, const char* t)
-{
+void prepend(char* s, const char* t) {
     size_t len = strlen(t);
     memmove(s + len, s, strlen(s) + 1);
     memcpy(s, t, len);

@@ -8,20 +8,16 @@
 #define GenUnloader(type) \
     void UnLoad##type##s(type val, ...) { \
         va_list ptr = NULL; \
-        for(type Variable = val; !(ptr); Variable = va_arg(ptr, type)) { \
+        for(type Variable = val; ptr!=NULL; Variable = va_arg(ptr, type)) { \
             Unload##type(Variable); \
         }; \
         va_end(ptr); \
     }
 
-#define AutoUnloader(type, ...) \
-    UnLoad##type##s(__VA_ARGS__);
-
 typedef struct InnerWindow {
     void(*BeginRender)(void);
     void(*EndRender)(void);
     RenderTexture2D screen;
-    ImGuiWindowFlags flags;
     struct InnerWindow* self;
     bool open;
 } InnerWindow;
@@ -32,37 +28,23 @@ typedef struct InnerWindow {
     InnerWindow* Get##wname(void); \
     void wname##_begin_render(void) { \
         InnerWindow* window = Get##wname(); \
-        igBegin(#wname, &window->open, window->flags); \
+        igBegin(#wname, &window->open, wflags); \
     } \
     InnerWindow* Get##wname(void) { \
         static InnerWindow window; \
         if(!window.self) { \
             window.BeginRender = wname##_begin_render; \
             window.EndRender = igEnd; \
-            window.flags = wflags; \
             window.screen = LoadRenderTexture(width, height); \
             window.open = true; \
             window.self = &window; \
         } \
         return window.self; \
     }
-
-#define CreateWindowSlim(wname, width, height, wflags) \
-    InnerWindow* Get##wname(void); \
-    void wname##_begin_render(void) { \
-        InnerWindow* window = Get##wname(); \
-        igBegin(#wname, &window->open, window->flags); \
-    } \
-    InnerWindow* Get##wname(void) { \
-        static InnerWindow window; \
-        if(!window.self) { \
-            window.BeginRender = wname##_begin_render; \
-            window.EndRender = igEnd; \
-            window.flags = wflags; \
-            window.open = true; \
-            window.self = &window; \
-        } \
-        return window.self; \
+    
+#define OpenMenuItem(wname, wobj) \
+    if(igMenuItem_BoolPtr(#wname, NULL, NULL, true)) { \
+        wobj->open = true; \
     }
 
 // Purpose is to allow for checking to see if the game code (asm) has been loaded into the vRam correctly

@@ -1,19 +1,12 @@
-#include <stdio.h>
-
 #include "Types.h"
 #include "utils.h"
 
-#define GAMEBOY_WIDTH 160
-#define GAMEBOY_HEIGHT 144
+#define GAMEBOY_WIDTH 256
+#define GAMEBOY_HEIGHT 224
 
-void ReadFileBytes(const char *filepath, Byte *data, size_t size);
+void ReadFileBytes(const char *filepath, Byte* data);
 
-// The GameBoys screen which is an image well draw into an imgui window after finishing the frame
-// Image ScreenImage;
-// The Texture that acctually gets Drawn as the GB screen
-// Texture ScreenTexture;
-
-// Clears the Image / Drawable screen to the specified color
-// inline void ClearGameBoyScreen(Color color) {
-    // UnloadImage(ScreenImage); ScreenImage = GenImageColor(GAMEBOY_WIDTH, GAMEBOY_HEIGHT, color);
-// }
+// ImGui gb window
+static InnerWindow* game_boy;
+// ImGui settings window
+static InnerWindow* settings;
